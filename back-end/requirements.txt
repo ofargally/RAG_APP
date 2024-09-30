@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+jinja2
+python-dotenv
+psycopg[binary]
+chromadb
+ollama
+tqdm
+colorama
+aiofiles
+fastapi-cors
