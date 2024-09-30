@@ -1,35 +1,97 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import ChatBox from "./components/ChatBox";
+import InputForm from "./components/InputForm";
+import axios from "axios";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Message {
+  sender: string;
+  content: string;
+  type: "user" | "assistant" | "system" | "error";
 }
 
-export default App
+const App: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  const handleNewMessage = (sender: string, content: string, type: "user") => {
+    setMessages((prev) => [...prev, { sender, content, type }]);
+  };
+
+  const handleNewAssistantMessage = (content: string, type: "assistant") => {
+    setMessages((prev) => [...prev, { sender: "Assistant", content, type }]);
+  };
+
+  const handleError = (message: string) => {
+    setMessages((prev) => [
+      ...prev,
+      { sender: "Error", content: message, type: "error" },
+    ]);
+  };
+
+  const handleForget = async () => {
+    try {
+      const response = await axios.post("/api/forget");
+      if (response.data.status === "success") {
+        handleNewAssistantMessage("Last conversation forgotten.", "system");
+      } else {
+        handleError(response.data.message);
+      }
+    } catch (error: any) {
+      handleError(error.message);
+    }
+  };
+
+  const handleRecall = async (prompt: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+
+      const response = await axios.post("/api/recall", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.status === "success") {
+        // Optionally, handle the recalled messages
+        // For simplicity, you might fetch the latest response from the server
+      } else {
+        handleError(response.data.message);
+      }
+    } catch (error: any) {
+      handleError(error.message);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white shadow-md rounded-md p-6">
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          RAG AI Assistant
+        </h1>
+        <ChatBox messages={messages} />
+        <InputForm
+          onNewMessage={handleNewMessage}
+          onNewAssistantMessage={handleNewAssistantMessage}
+          onError={handleError}
+        />
+        <div className="flex justify-end mt-4 space-x-2">
+          <button
+            onClick={handleForget}
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Forget Last Conversation
+          </button>
+          {/* Optionally, add a recall feature */}
+          {/* <button
+            onClick={() => handleRecall('Your prompt here')}
+            className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            Recall
+          </button> */}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
