@@ -3,6 +3,7 @@ import ast
 import ollama
 import chromadb
 from colorama import Fore
+from psycopg.rows import dict_row
 from tqdm import tqdm
 from .database import (
     fetch_conversations,

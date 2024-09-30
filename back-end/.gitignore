@@ -10,17 +10,23 @@ __pycache__/
 venv/
 env/
 .venv/
-.env/
 ENV/
 env.bak/
 venv.bak/
 
-# Node modules and build directories
+# PostgreSQL logs and temporary files
+*.log
+*.sql
+*.sqlite
+
+# Node modules
 node_modules/
 frontend/node_modules/
-dist/
-build/
-.out/
+
+# Build directories
+frontend/dist/
+frontend/build/
+frontend/.vite/
 .cache/
 public/build/
 
@@ -35,24 +41,20 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Editor directories and files
+# Editors
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 
-# TailwindCSS generated files
-**/tailwind.config.js
-**/tailwind.config.cjs
-**/postcss.config.js
+# TailwindCSS
+tailwind.config.js
+tailwind.config.cjs
+postcss.config.js
 
-# Vite cache
+# Vite
 .vite/
 
-# Production
-.env.production
-
-# Miscellaneous
-*.bak
-*.tmp
-*.swp
+# Environment variables
+.env
+.env.*

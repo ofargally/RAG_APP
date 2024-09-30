@@ -9,3 +9,4 @@ tqdm
 colorama
 aiofiles
 fastapi-cors
+python-multipart

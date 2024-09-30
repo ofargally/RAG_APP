@@ -1,3 +1,5 @@
+// frontend/src/App.tsx
+
 import React, { useState } from "react";
 import ChatBox from "./components/ChatBox";
 import InputForm from "./components/InputForm";
@@ -16,7 +18,10 @@ const App: React.FC = () => {
     setMessages((prev) => [...prev, { sender, content, type }]);
   };
 
-  const handleNewAssistantMessage = (content: string, type: "assistant") => {
+  const handleNewAssistantMessage = (
+    content: string,
+    type: "assistant" | "system"
+  ) => {
     setMessages((prev) => [...prev, { sender: "Assistant", content, type }]);
   };
 
@@ -35,8 +40,12 @@ const App: React.FC = () => {
       } else {
         handleError(response.data.message);
       }
-    } catch (error: any) {
-      handleError(error.message);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleError(error.message);
+      } else {
+        handleError("An unexpected error occurred.");
+      }
     }
   };
 
@@ -52,13 +61,17 @@ const App: React.FC = () => {
       });
 
       if (response.data.status === "success") {
-        // Optionally, handle the recalled messages
-        // For simplicity, you might fetch the latest response from the server
+        const assistantResponse = response.data.response;
+        handleNewAssistantMessage(assistantResponse, "assistant");
       } else {
         handleError(response.data.message);
       }
-    } catch (error: any) {
-      handleError(error.message);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleError(error.message);
+      } else {
+        handleError("An unexpected error occurred.");
+      }
     }
   };
 
@@ -81,13 +94,12 @@ const App: React.FC = () => {
           >
             Forget Last Conversation
           </button>
-          {/* Optionally, add a recall feature */}
-          {/* <button
-            onClick={() => handleRecall('Your prompt here')}
+          <button
+            onClick={() => handleRecall("Your prompt here")}
             className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
             Recall
-          </button> */}
+          </button>
         </div>
       </div>
     </div>

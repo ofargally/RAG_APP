@@ -38,12 +38,8 @@ const InputForm: React.FC<InputFormProps> = ({
       });
 
       if (response.data.status === "success") {
-        // For simplicity, we'll assume the assistant's response is immediately available.
-        // In a real-world scenario, you might implement streaming or polling.
-        // Here, you can fetch the latest response or modify the backend to return it directly.
-        // As per the current backend setup, it doesn't return the assistant's response,
-        // so you might need to adjust the backend to return it.
-        // For now, we'll leave it as is.
+        const assistantResponse = response.data.response;
+        onNewAssistantMessage(assistantResponse, "assistant");
       } else {
         onError(response.data.message);
       }

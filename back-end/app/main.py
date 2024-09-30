@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Request, Form
+# backend/app/main.py
+
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -17,9 +19,10 @@ load_dotenv()
 
 app = FastAPI()
 
-# Configure CORS (optional since proxy is used)
+# Configure CORS
 origins = [
     "http://localhost:3000",  # Vite dev server
+    "http://localhost",       # Additional origins if needed
 ]
 
 app.add_middleware(
@@ -39,9 +42,10 @@ def startup_event():
 @app.post("/api/chat")
 async def chat(prompt: str = Form(...), llm_api_key: str = Form(None)):
     try:
-        stream_response(prompt=prompt, llm_api_key=llm_api_key)
+        # Assuming stream_response returns the assistant's response
+        response_text = stream_response(prompt=prompt, llm_api_key=llm_api_key)
         update_vector_db()
-        return JSONResponse(content={"status": "success"})
+        return JSONResponse(content={"status": "success", "response": response_text})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
 
@@ -57,13 +61,11 @@ async def forget():
 async def recall_prompt(prompt: str = Form(...)):
     try:
         recall(prompt=prompt)
-        stream_response(prompt=prompt)
+        response_text = stream_response(prompt=prompt)
         update_vector_db()
-        return JSONResponse(content={"status": "success"})
+        return JSONResponse(content={"status": "success", "response": response_text})
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": str(e)})
-
-# Additional routes can be added as needed
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
